@@ -16,12 +16,13 @@ void main() {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.text('HUSH!'), findsOneWidget);
-    expect(find.text('WORD PARTY'), findsOneWidget);
     expect(find.text('OYUNA BAŞLA'), findsOneWidget);
     expect(find.text('NASIL OYNANIR?'), findsOneWidget);
     expect(find.text('AYARLAR'), findsOneWidget);
+    expect(find.text('KÜNYE (CREDITS)'), findsOneWidget);
+    expect(find.text('ÇIKIŞ'), findsOneWidget);
   });
 }
