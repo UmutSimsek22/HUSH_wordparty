@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'sound_service_base.dart';
 
@@ -7,51 +8,57 @@ class SoundServiceImpl implements SoundServiceBase {
   @override
   bool isVibrationEnabled = true;
 
+  final AudioPlayer _player = AudioPlayer();
+
+  void _playSound(String fileName) async {
+    if (!isSoundEnabled) return;
+    try {
+      await _player.stop();
+      await _player.play(AssetSource('sounds/$fileName'));
+    } catch (e) {
+      // Fallback
+    }
+  }
+
   @override
   void playClick() {
     if (isVibrationEnabled) HapticFeedback.lightImpact();
-    if (!isSoundEnabled) return;
-    SystemSound.play(SystemSoundType.click);
+    _playSound('click.wav');
   }
 
   @override
   void playCorrect() {
     if (isVibrationEnabled) HapticFeedback.mediumImpact();
-    if (!isSoundEnabled) return;
-    SystemSound.play(SystemSoundType.click);
+    _playSound('correct.wav');
   }
 
   @override
   void playHush() {
     if (isVibrationEnabled) HapticFeedback.heavyImpact();
-    if (!isSoundEnabled) return;
-    SystemSound.play(SystemSoundType.alert);
+    _playSound('hush.wav');
   }
 
   @override
   void playPass() {
     if (isVibrationEnabled) HapticFeedback.selectionClick();
-    if (!isSoundEnabled) return;
-    SystemSound.play(SystemSoundType.click);
+    _playSound('pass.wav');
   }
 
   @override
   void playTimerWarning() {
     if (isVibrationEnabled) HapticFeedback.selectionClick();
-    if (!isSoundEnabled) return;
-    SystemSound.play(SystemSoundType.click);
+    _playSound('timer.wav');
   }
 
   @override
   void playTimeUp() {
     if (isVibrationEnabled) HapticFeedback.vibrate();
-    if (!isSoundEnabled) return;
-    SystemSound.play(SystemSoundType.alert);
+    _playSound('timeup.wav');
   }
 
   @override
   void playFanfare() {
-    if (!isSoundEnabled) return;
-    SystemSound.play(SystemSoundType.click);
+    if (isVibrationEnabled) HapticFeedback.mediumImpact();
+    _playSound('fanfare.wav');
   }
 }
