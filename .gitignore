@@ -4,7 +4,7 @@
 !.github/workflows/
 cli/
 dist/
-web/
+/web/
 Dockerfile
 AGENT_FLOW.md
 CHANGELOG.md
