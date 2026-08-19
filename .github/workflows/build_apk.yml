@@ -57,7 +57,9 @@ jobs:
         with:
           tag_name: latest
           name: "HUSH! Android App (Son Sürüm)"
-          body: "Telefondan kolayca indirmek için aşağıdaki `app-release.apk` dosyasına tıklayın!"
+          body: "Telefondan kolayca indirmek için aşağıdaki `app-release.apk` dosyasına tıklayın! (Her güncellemede yenilenir)"
           files: hush_app/build/app/outputs/flutter-apk/app-release.apk
+          make_latest: true
+          overwrite: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
