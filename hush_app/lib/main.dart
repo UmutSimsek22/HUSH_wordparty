@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'providers/game_provider.dart';
 import 'screens/welcome_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,7 +77,7 @@ class HushApp extends StatelessWidget {
             ),
           );
         },
-        home: const WelcomeScreen(),
+        home: const SplashScreen(),
       ),
     );
   }

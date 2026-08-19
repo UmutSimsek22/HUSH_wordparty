@@ -16,7 +16,7 @@ class RoundSummaryScreen extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: const Color(0xFF121820),
+        backgroundColor: const Color(0xFF121212),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -26,15 +26,16 @@ class RoundSummaryScreen extends StatelessWidget {
                 // Header
                 Column(
                   children: [
-                    const Icon(Icons.alarm_off, color: Color(0xFFFF4D4D), size: 54),
+                    const Icon(Icons.timer_off, color: Color(0xFFFFC048), size: 54),
                     const SizedBox(height: 12),
                     const Text(
                       'SÜRE BİTTİ!',
                       style: TextStyle(
-                        color: Color(0xFFFF4D4D),
+                        color: Colors.white,
                         fontSize: 28,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2,
+                        fontFamily: 'Courier',
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -50,9 +51,9 @@ class RoundSummaryScreen extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A222D),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFF2C394B), width: 2),
+                    color: const Color(0xFF1E1E1E),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF333333), width: 2),
                   ),
                   child: Column(
                     children: [
@@ -72,22 +73,22 @@ class RoundSummaryScreen extends StatelessWidget {
                             : '${provider.turnNetPoints}',
                         style: TextStyle(
                           color: provider.turnNetPoints >= 0
-                              ? const Color(0xFF00A8FF)
-                              : const Color(0xFFFF4D4D),
+                              ? const Color(0xFF007AFF)
+                              : const Color(0xFFFF3B30),
                           fontSize: 48,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Divider(color: Color(0xFF2C394B)),
+                      const Divider(color: Color(0xFF333333)),
                       const SizedBox(height: 16),
 
                       // Breakdown Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _buildStatItem('Doğru', '+${provider.turnCorrect}', const Color(0xFF00A8FF), Icons.check_circle),
-                          _buildStatItem('HUSH!', '-${provider.turnHush}', const Color(0xFFFF4D4D), Icons.cancel),
+                          _buildStatItem('Doğru', '+${provider.turnCorrect}', const Color(0xFF007AFF), Icons.check_circle),
+                          _buildStatItem('HUSH!', '-${provider.turnHush}', const Color(0xFFFF3B30), Icons.cancel),
                           _buildStatItem('Pas', '${provider.turnPass}', const Color(0xFFFF793F), Icons.skip_next),
                         ],
                       ),
@@ -98,7 +99,7 @@ class RoundSummaryScreen extends StatelessWidget {
                 // Next Action Button
                 SizedBox(
                   width: double.infinity,
-                  height: 60,
+                  height: 56,
                   child: ElevatedButton(
                     onPressed: () {
                       SoundService().playClick();
@@ -115,27 +116,27 @@ class RoundSummaryScreen extends StatelessWidget {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isGameOver ? const Color(0xFFFFC048) : const Color(0xFF00A8FF),
-                      foregroundColor: isGameOver ? const Color(0xFF121820) : Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                      elevation: 6,
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 4,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           isGameOver ? 'OYUN SONU & İSTATİSTİKLER' : 'SIRADAKİ TAKIMA GEÇ',
-                          style: TextStyle(
-                            color: isGameOver ? const Color(0xFF121820) : Colors.white,
-                            fontSize: 16,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 1,
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Icon(
+                        const Icon(
                           Icons.arrow_forward,
-                          color: isGameOver ? const Color(0xFF121820) : Colors.white,
+                          color: Colors.black,
                         ),
                       ],
                     ),

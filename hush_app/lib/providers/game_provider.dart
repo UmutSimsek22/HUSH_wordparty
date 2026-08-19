@@ -26,6 +26,8 @@ class GameProvider extends ChangeNotifier {
   int _remainingPasses = 3;
   Timer? _timer;
   bool _isTurnActive = false;
+  bool _isPaused = false;
+  bool _isAbandoned = false;
   bool _isGameFinished = false;
 
   // Turn statistics
@@ -42,6 +44,8 @@ class GameProvider extends ChangeNotifier {
   int get remainingSeconds => _remainingSeconds;
   int get remainingPasses => _remainingPasses;
   bool get isTurnActive => _isTurnActive;
+  bool get isPaused => _isPaused;
+  bool get isAbandoned => _isAbandoned;
   bool get isGameFinished => _isGameFinished;
   int get turnCorrect => _turnCorrect;
   int get turnHush => _turnHush;
@@ -140,6 +144,8 @@ class GameProvider extends ChangeNotifier {
     _turnHush = 0;
     _turnPass = 0;
     _isTurnActive = true;
+    _isPaused = false;
+    _isAbandoned = false;
 
     _drawNextCard();
     notifyListeners();
@@ -156,6 +162,47 @@ class GameProvider extends ChangeNotifier {
         endTurn();
       }
     });
+  }
+
+  void pauseTurn() {
+    _timer?.cancel();
+    _isPaused = true;
+    notifyListeners();
+  }
+
+  void resumeTurn() {
+    if (!_isTurnActive || !_isPaused) return;
+    _isPaused = false;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_remainingSeconds > 1) {
+        _remainingSeconds--;
+        if (_remainingSeconds <= 5) {
+          _soundService.playTimerWarning();
+        }
+        notifyListeners();
+      } else {
+        _remainingSeconds = 0;
+        endTurn();
+      }
+    });
+    notifyListeners();
+  }
+
+  void abandonGame() {
+    _timer?.cancel();
+    _isAbandoned = true;
+    _isTurnActive = false;
+    _isPaused = false;
+    _isGameFinished = false;
+    _turnCorrect = 0;
+    _turnHush = 0;
+    _turnPass = 0;
+    _currentRound = 1;
+    _currentTeamIndex = 0;
+    _currentCard = null;
+    setupDefaultTeams();
+    notifyListeners();
   }
 
   void onCorrect() {

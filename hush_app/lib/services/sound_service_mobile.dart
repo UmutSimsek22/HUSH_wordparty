@@ -8,13 +8,14 @@ class SoundServiceImpl implements SoundServiceBase {
   @override
   bool isVibrationEnabled = true;
 
-  final AudioPlayer _player = AudioPlayer();
-
   void _playSound(String fileName) async {
     if (!isSoundEnabled) return;
     try {
-      await _player.stop();
-      await _player.play(AssetSource('sounds/$fileName'));
+      final player = AudioPlayer();
+      await player.play(AssetSource('sounds/$fileName'));
+      player.onPlayerComplete.listen((_) {
+        player.dispose();
+      });
     } catch (e) {
       // Fallback
     }
@@ -52,7 +53,7 @@ class SoundServiceImpl implements SoundServiceBase {
 
   @override
   void playTimeUp() {
-    if (isVibrationEnabled) HapticFeedback.vibrate();
+    if (isVibrationEnabled) HapticFeedback.mediumImpact();
     _playSound('timeup.wav');
   }
 

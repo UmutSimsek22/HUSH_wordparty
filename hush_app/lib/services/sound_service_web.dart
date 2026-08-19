@@ -19,7 +19,7 @@ class SoundServiceImpl implements SoundServiceBase {
       html.document.head?.append(html.ScriptElement()
         ..text = '''
           window.hushAudioCtx = window.hushAudioCtx || new (window.AudioContext || window.webkitAudioContext)();
-          window.playHushTone = function(freq, type, duration, delay) {
+          window.playHushTone = function(freq, type, duration, volume, delay) {
             if (!window.hushAudioCtx) return;
             if (window.hushAudioCtx.state === 'suspended') {
               window.hushAudioCtx.resume();
@@ -30,7 +30,8 @@ class SoundServiceImpl implements SoundServiceBase {
                 var gain = window.hushAudioCtx.createGain();
                 osc.type = type || 'sine';
                 osc.frequency.setValueAtTime(freq, window.hushAudioCtx.currentTime);
-                gain.gain.setValueAtTime(0.15, window.hushAudioCtx.currentTime);
+                var v = volume || 0.06;
+                gain.gain.setValueAtTime(v, window.hushAudioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.0001, window.hushAudioCtx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(window.hushAudioCtx.destination);
@@ -45,10 +46,23 @@ class SoundServiceImpl implements SoundServiceBase {
     }
   }
 
-  void _playTone(double freq, String type, double duration, [double delay = 0]) {
+  void _playTone(double freq, String type, double duration, [double volume = 0.06, double delay = 0]) {
     if (!isSoundEnabled) return;
     try {
-      js.context.callMethod('playHushTone', [freq, type, duration, delay]);
+      js.context.callMethod('playHushTone', [freq, type, duration, volume, delay]);
+    } catch (e) {
+      // Ignore
+    }
+  }
+
+  void _playSoundAsset(String fileName) {
+    if (!isSoundEnabled) return;
+    try {
+      final audio = html.AudioElement('assets/sounds/$fileName');
+      audio.volume = 0.6;
+      audio.play().catchError((e) {
+        // Fallback tone if asset fails
+      });
     } catch (e) {
       // Ignore
     }
@@ -56,47 +70,41 @@ class SoundServiceImpl implements SoundServiceBase {
 
   @override
   void playClick() {
-    _playTone(550, 'sine', 0.06);
+    // Soft, crisp, pleasant pop tone (zero harsh bass)
+    _playTone(650, 'sine', 0.04, 0.05);
   }
 
   @override
   void playCorrect() {
-    // Beautiful double chime (C6 -> G6)
-    _playTone(1046.5, 'sine', 0.12, 0.0);
-    _playTone(1568.0, 'sine', 0.28, 0.08);
+    _playSoundAsset('correct.wav');
   }
 
   @override
   void playHush() {
-    // Low buzzer warning (Sawtooth wave)
-    _playTone(160, 'sawtooth', 0.2, 0.0);
-    _playTone(140, 'sawtooth', 0.25, 0.06);
+    _playSoundAsset('hush.wav');
   }
 
   @override
   void playPass() {
-    // Whoosh pitch slide (440 -> 330)
-    _playTone(440, 'sine', 0.08, 0.0);
-    _playTone(330, 'sine', 0.1, 0.04);
+    _playSoundAsset('pass.wav');
   }
 
   @override
   void playTimerWarning() {
-    _playTone(800, 'sine', 0.05);
+    // Gentle tick
+    _playTone(850, 'sine', 0.04, 0.04);
   }
 
   @override
   void playTimeUp() {
-    // Low gong
-    _playTone(200, 'triangle', 0.4, 0.0);
-    _playTone(170, 'sawtooth', 0.5, 0.1);
+    // Soft, pleasant warm chime (C5 -> E5 -> G5 chord)
+    _playTone(523.25, 'sine', 0.3, 0.06, 0.0);
+    _playTone(659.25, 'sine', 0.3, 0.06, 0.06);
+    _playTone(783.99, 'sine', 0.4, 0.06, 0.12);
   }
 
   @override
   void playFanfare() {
-    _playTone(523.25, 'sine', 0.12, 0.0);
-    _playTone(659.25, 'sine', 0.12, 0.1);
-    _playTone(783.99, 'sine', 0.12, 0.2);
-    _playTone(1046.50, 'sine', 0.35, 0.3);
+    _playSoundAsset('fanfare.wav');
   }
 }

@@ -14,12 +14,13 @@ class TeamSetupScreen extends StatefulWidget {
 }
 
 class _TeamSetupScreenState extends State<TeamSetupScreen> {
-  // Retro Warm Arcade Color Palette (Telif-safe: Red, Blue, Gold, Amber)
+  // 5 Presets: Kırmızı, Mavi, Sarı (Altın), Yeşil, Pembe
   final List<Color> _availableColors = const [
-    Color(0xFFFF4D4D), // Ateş Kırmızısı
-    Color(0xFF00A8FF), // Okyanus Mavisi
-    Color(0xFFFFC048), // Parlak Altın
-    Color(0xFFFF793F), // Sıcak Kehribar
+    Color(0xFFFF3B30), // Kırmızı
+    Color(0xFF007AFF), // Mavi
+    Color(0xFFFFCC00), // Sarı / Altın
+    Color(0xFF34C759), // Yeşil
+    Color(0xFFFF2D55), // Pembe
   ];
 
   late List<Team> _teams;
@@ -27,9 +28,6 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
   @override
   void initState() {
     super.initState();
-    // Default Teams with requested names:
-    // Kırmızı Takım: Rüzgar & Enes
-    // Mavi Takım: İrem & Elif
     _teams = [
       Team(
         id: 'team_1',
@@ -52,12 +50,22 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
     ];
   }
 
+  Color _getUnusedColor() {
+    final usedColors = _teams.map((t) => t.color.value).toSet();
+    for (var color in _availableColors) {
+      if (!usedColors.contains(color.value)) {
+        return color;
+      }
+    }
+    return _availableColors[0];
+  }
+
   void _addTeam() {
     SoundService().playClick();
     if (_teams.length >= 4) return;
+    final color = _getUnusedColor();
     final index = _teams.length;
-    final color = _availableColors[index % _availableColors.length];
-    final teamId = 'team_${index + 1}';
+    final teamId = 'team_${DateTime.now().millisecondsSinceEpoch}';
     setState(() {
       _teams.add(
         Team(
@@ -65,8 +73,8 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
           name: '${_getTeamColorName(color)} Takım',
           color: color,
           players: [
-            Player(id: 'p${index + 1}_1', name: 'Oyuncu 1', teamId: teamId),
-            Player(id: 'p${index + 1}_2', name: 'Oyuncu 2', teamId: teamId),
+            Player(id: '${teamId}_p1', name: 'Oyuncu 1', teamId: teamId),
+            Player(id: '${teamId}_p2', name: 'Oyuncu 2', teamId: teamId),
           ],
         ),
       );
@@ -74,10 +82,12 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
   }
 
   String _getTeamColorName(Color color) {
-    if (color == const Color(0xFFFF4D4D)) return 'Kırmızı';
-    if (color == const Color(0xFF00A8FF)) return 'Mavi';
-    if (color == const Color(0xFFFFC048)) return 'Altın';
-    return 'Turuncu';
+    if (color == const Color(0xFFFF3B30)) return 'Kırmızı';
+    if (color == const Color(0xFF007AFF)) return 'Mavi';
+    if (color == const Color(0xFFFFCC00)) return 'Sarı';
+    if (color == const Color(0xFF34C759)) return 'Yeşil';
+    if (color == const Color(0xFFFF2D55)) return 'Pembe';
+    return 'Takım';
   }
 
   void _removeTeam(int index) {
@@ -105,7 +115,7 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
       final pIndex = team.players.length + 1;
       team.players.add(
         Player(
-          id: '${team.id}_p$pIndex',
+          id: '${team.id}_p${DateTime.now().millisecondsSinceEpoch}',
           name: 'Oyuncu $pIndex',
           teamId: team.id,
         ),
@@ -132,10 +142,10 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1A222D),
+        backgroundColor: const Color(0xFF1E1E1E),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Color(0xFF2C394B)),
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFF333333), width: 2),
         ),
         title: const Text('Oyuncu Adını Düzenle', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: TextField(
@@ -161,7 +171,7 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
               }
               Navigator.pop(ctx);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00A8FF)),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF007AFF)),
             child: const Text('Kaydet'),
           ),
         ],
@@ -175,10 +185,10 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1A222D),
+        backgroundColor: const Color(0xFF1E1E1E),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Color(0xFF2C394B)),
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFF333333), width: 2),
         ),
         title: const Text('Takım Adını Düzenle', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: TextField(
@@ -235,13 +245,20 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121820),
+      backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A222D),
+        backgroundColor: const Color(0xFF1E1E1E),
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () {
+            SoundService().playClick();
+            Navigator.pop(context);
+          },
+        ),
         title: const Text(
           'TAKIM & OYUNCULAR',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1.5),
         ),
         centerTitle: true,
       ),
@@ -253,7 +270,7 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   const Text(
-                    'Takımları ve oyuncuları belirleyin (En fazla 4 takım, her takımda en fazla 4 oyuncu):',
+                    'Takımları ve oyuncuları belirleyin (En fazla 4 takım, 5 farklı renk seçeneği):',
                     style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13.5),
                   ),
                   const SizedBox(height: 16),
@@ -266,15 +283,15 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
                     const SizedBox(height: 8),
                     OutlinedButton.icon(
                       onPressed: _addTeam,
-                      icon: const Icon(Icons.add_circle_outline, color: Color(0xFF00A8FF)),
+                      icon: const Icon(Icons.add_circle_outline, color: Colors.white),
                       label: const Text(
                         'YENİ TAKIM EKLE',
-                        style: TextStyle(color: Color(0xFF00A8FF), fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(color: Color(0xFF00A8FF), width: 1.5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        side: const BorderSide(color: Colors.white, width: 1.5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ],
@@ -284,18 +301,18 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: Color(0xFF1A222D),
-                border: Border(top: BorderSide(color: Color(0xFF2C394B))),
+                color: Color(0xFF1E1E1E),
+                border: Border(top: BorderSide(color: Color(0xFF333333))),
               ),
               child: SizedBox(
                 width: double.infinity,
-                height: 54,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: _onProceed,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A8FF),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 4,
                   ),
                   child: const Row(
@@ -304,14 +321,14 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
                       Text(
                         'KURALLARA GEÇ',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                          color: Colors.black,
+                          fontSize: 15,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1,
                         ),
                       ),
                       SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, color: Colors.white),
+                      Icon(Icons.arrow_forward, color: Colors.black),
                     ],
                   ),
                 ),
@@ -327,9 +344,9 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A222D),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: team.color.withOpacity(0.6), width: 2),
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: team.color, width: 2),
       ),
       child: Column(
         children: [
@@ -337,10 +354,10 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: team.color.withOpacity(0.15),
+              color: team.color.withOpacity(0.2),
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(18),
-                topRight: Radius.circular(18),
+                topLeft: Radius.circular(14),
+                topRight: Radius.circular(14),
               ),
             ),
             child: Row(
@@ -361,14 +378,14 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Icon(Icons.edit, size: 16, color: team.color.withOpacity(0.7)),
+                        Icon(Icons.edit, size: 16, color: team.color),
                       ],
                     ),
                   ),
                 ),
                 if (_teams.length > 2)
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Color(0xFFFF4D4D), size: 20),
+                    icon: const Icon(Icons.delete_outline, color: Color(0xFFFF3B30), size: 20),
                     onPressed: () => _removeTeam(index),
                   ),
               ],
@@ -387,9 +404,9 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF121820),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF2C394B)),
+                      color: const Color(0xFF121212),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF333333)),
                     ),
                     child: Row(
                       children: [
@@ -402,14 +419,14 @@ class _TeamSetupScreenState extends State<TeamSetupScreen> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.edit, color: Color(0xFF00A8FF), size: 16),
+                          icon: const Icon(Icons.edit, color: Color(0xFF007AFF), size: 16),
                           onPressed: () => _editPlayerName(player),
                           constraints: const BoxConstraints(),
                           padding: const EdgeInsets.all(4),
                         ),
                         if (team.players.length > 1)
                           IconButton(
-                            icon: const Icon(Icons.close, color: Color(0xFFFF4D4D), size: 16),
+                            icon: const Icon(Icons.close, color: Color(0xFFFF3B30), size: 16),
                             onPressed: () => _removePlayerFromTeam(team, pIdx),
                             constraints: const BoxConstraints(),
                             padding: const EdgeInsets.all(4),

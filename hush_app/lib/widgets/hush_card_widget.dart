@@ -17,12 +17,12 @@ class HushCardWidget extends StatelessWidget {
       return Container(
         height: 380,
         decoration: BoxDecoration(
-          color: const Color(0xFF1A222D),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFF2C394B), width: 2),
+          color: const Color(0xFFF4F1EA),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.black, width: 3),
         ),
         child: const Center(
-          child: CircularProgressIndicator(color: Color(0xFF00A8FF)),
+          child: CircularProgressIndicator(color: Colors.black),
         ),
       );
     }
@@ -31,79 +31,79 @@ class HushCardWidget extends StatelessWidget {
       width: double.infinity,
       constraints: const BoxConstraints(minHeight: 380),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A222D),
-        borderRadius: BorderRadius.circular(24),
+        color: const Color(0xFFF4F1EA), // Vintage Off-white / Cream
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: teamColor.withOpacity(0.6),
-          width: 2.5,
+          color: Colors.black,
+          width: 3.5,
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: teamColor.withOpacity(0.15),
-            blurRadius: 24,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
+            color: Colors.black45,
+            blurRadius: 10,
+            offset: Offset(4, 6),
           ),
         ],
       ),
       child: Column(
         children: [
-          // Target Word Header
+          // Target Word Header (Vintage Press Header Style)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
             decoration: BoxDecoration(
-              color: teamColor.withOpacity(0.15),
+              color: teamColor,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(21),
-                topRight: Radius.circular(21),
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
               ),
-              border: Border(
+              border: const Border(
                 bottom: BorderSide(
-                  color: teamColor.withOpacity(0.4),
-                  width: 2,
+                  color: Colors.black,
+                  width: 3,
                 ),
               ),
             ),
             child: Text(
-              card!.targetWord,
+              card!.targetWord.toUpperCase(),
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: const Color(0xFFF8FAFC),
-                fontSize: 32,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 30,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 2,
+                fontFamily: 'Courier',
                 shadows: [
                   Shadow(
-                    color: teamColor.withOpacity(0.8),
-                    blurRadius: 12,
+                    color: Colors.black,
+                    offset: Offset(1.5, 1.5),
                   ),
                 ],
               ),
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
 
           // Forbidden / Yasaklı badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
             decoration: BoxDecoration(
-              color: const Color(0xFFFF4D4D).withOpacity(0.15),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFFF4D4D).withOpacity(0.4)),
+              color: const Color(0xFFFF3B30),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: Colors.black, width: 1.5),
             ),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.block, color: Color(0xFFFF4D4D), size: 16),
+                Icon(Icons.block, color: Colors.white, size: 14),
                 SizedBox(width: 6),
                 Text(
                   'YASAKLI KELİMELER',
                   style: TextStyle(
-                    color: Color(0xFFFF4D4D),
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
                     letterSpacing: 1.2,
                   ),
                 ),
@@ -111,33 +111,40 @@ class HushCardWidget extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
 
           // Forbidden Words List
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: card!.forbiddenWords.map((word) {
                 return Container(
                   width: double.infinity,
-                  margin: const EdgeInsets.symmetric(vertical: 6),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  margin: const EdgeInsets.symmetric(vertical: 5),
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF121820),
-                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: const Color(0xFF2C394B),
-                      width: 1.2,
+                      color: Colors.black87,
+                      width: 1.5,
                     ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        offset: Offset(2, 2),
+                      ),
+                    ],
                   ),
                   child: Text(
                     word,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      color: Color(0xFFE2E8F0),
-                      fontSize: 19,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.8,
+                      color: Color(0xFF181818),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                      fontFamily: 'Courier',
                     ),
                   ),
                 );
@@ -145,7 +152,7 @@ class HushCardWidget extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
         ],
       ),
     );

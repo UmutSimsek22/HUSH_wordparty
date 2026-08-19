@@ -19,7 +19,7 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
   bool _isSoundEnabled = true;
   bool _isVibrationEnabled = true;
 
-  final List<int> _durationOptions = [30, 45, 60, 90, 120];
+  final List<int> _durationOptions = [10, 30, 45, 60, 90, 120];
   final List<int> _roundOptions = [1, 2, 3, 4, 5];
   final List<int?> _passOptions = [1, 2, 3, 5, null]; // null is Sınırsız
 
@@ -56,13 +56,20 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121820),
+      backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A222D),
+        backgroundColor: const Color(0xFF1E1E1E),
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          onPressed: () {
+            SoundService().playClick();
+            Navigator.pop(context);
+          },
+        ),
         title: const Text(
           'OYUN KURALLARI',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1.5),
         ),
         centerTitle: true,
       ),
@@ -76,35 +83,34 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
                   // 1. Anlatma Seansı Süresi
                   _buildSectionHeader(Icons.timer, 'BİR ANLATMA SEANSI SÜRESİ'),
                   const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     children: _durationOptions.map((sec) {
                       final isSelected = _selectedDuration == sec;
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            SoundService().playClick();
-                            setState(() => _selectedDuration = sec);
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 3),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: isSelected ? const Color(0xFF00A8FF) : const Color(0xFF1A222D),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isSelected ? const Color(0xFF00A8FF) : const Color(0xFF2C394B),
-                                width: 1.5,
-                              ),
+                      return GestureDetector(
+                        onTap: () {
+                          SoundService().playClick();
+                          setState(() => _selectedDuration = sec);
+                        },
+                        child: Container(
+                          width: 80,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: isSelected ? Colors.white : const Color(0xFF1E1E1E),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isSelected ? Colors.white : const Color(0xFF333333),
+                              width: 1.5,
                             ),
-                            child: Text(
-                              '$sec sn',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : const Color(0xFF94A3B8),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
+                          ),
+                          child: Text(
+                            '$sec sn',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: isSelected ? Colors.black : const Color(0xFF94A3B8),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -136,10 +142,10 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
                             margin: const EdgeInsets.symmetric(horizontal: 3),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             decoration: BoxDecoration(
-                              color: isSelected ? const Color(0xFFFFC048) : const Color(0xFF1A222D),
-                              borderRadius: BorderRadius.circular(12),
+                              color: isSelected ? const Color(0xFFFFC048) : const Color(0xFF1E1E1E),
+                              borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: isSelected ? const Color(0xFFFFC048) : const Color(0xFF2C394B),
+                                color: isSelected ? const Color(0xFFFFC048) : const Color(0xFF333333),
                                 width: 1.5,
                               ),
                             ),
@@ -147,9 +153,9 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
                               '$rounds Tur',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: isSelected ? const Color(0xFF121820) : const Color(0xFF94A3B8),
+                                color: isSelected ? Colors.black : const Color(0xFF94A3B8),
                                 fontWeight: FontWeight.w900,
-                                fontSize: 13.5,
+                                fontSize: 13,
                               ),
                             ),
                           ),
@@ -178,10 +184,10 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
                             margin: const EdgeInsets.symmetric(horizontal: 3),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
-                              color: isSelected ? const Color(0xFFFF793F) : const Color(0xFF1A222D),
-                              borderRadius: BorderRadius.circular(12),
+                              color: isSelected ? const Color(0xFFFF793F) : const Color(0xFF1E1E1E),
+                              borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: isSelected ? const Color(0xFFFF793F) : const Color(0xFF2C394B),
+                                color: isSelected ? const Color(0xFFFF793F) : const Color(0xFF333333),
                                 width: 1.5,
                               ),
                             ),
@@ -208,9 +214,9 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1A222D),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF2C394B)),
+                      color: const Color(0xFF1E1E1E),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFF333333)),
                     ),
                     child: Column(
                       children: [
@@ -218,18 +224,18 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
                           title: const Text('Ses Efektleri', style: TextStyle(color: Colors.white, fontSize: 14)),
                           subtitle: const Text('Doğru, HUSH! ve süre sonu tonları', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
                           value: _isSoundEnabled,
-                          activeColor: const Color(0xFF00A8FF),
+                          activeColor: Colors.white,
                           onChanged: (val) {
                             SoundService().playClick();
                             setState(() => _isSoundEnabled = val);
                           },
                         ),
-                        const Divider(color: Color(0xFF2C394B)),
+                        const Divider(color: Color(0xFF333333)),
                         SwitchListTile(
                           title: const Text('Titreşim (Haptik)', style: TextStyle(color: Colors.white, fontSize: 14)),
                           subtitle: const Text('Buton dokunma titreşimleri', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
                           value: _isVibrationEnabled,
-                          activeColor: const Color(0xFF00A8FF),
+                          activeColor: Colors.white,
                           onChanged: (val) {
                             SoundService().playClick();
                             setState(() => _isVibrationEnabled = val);
@@ -245,25 +251,25 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: Color(0xFF1A222D),
-                border: Border(top: BorderSide(color: Color(0xFF2C394B))),
+                color: Color(0xFF1E1E1E),
+                border: Border(top: BorderSide(color: Color(0xFF333333))),
               ),
               child: SizedBox(
                 width: double.infinity,
-                height: 54,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: _onStartGame,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00A8FF),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 4,
                   ),
                   child: const Text(
                     'OYUNU BAŞLAT',
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
+                      color: Colors.black,
+                      fontSize: 16,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.5,
                     ),
@@ -280,12 +286,12 @@ class _GameSettingsScreenState extends State<GameSettingsScreen> {
   Widget _buildSectionHeader(IconData icon, String title) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFF00A8FF), size: 18),
+        Icon(icon, color: Colors.white, size: 18),
         const SizedBox(width: 8),
         Text(
           title,
           style: const TextStyle(
-            color: Color(0xFFF8FAFC),
+            color: Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.bold,
             letterSpacing: 1,

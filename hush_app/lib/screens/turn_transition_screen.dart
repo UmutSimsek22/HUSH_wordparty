@@ -12,12 +12,12 @@ class TurnTransitionScreen extends StatelessWidget {
     final provider = Provider.of<GameProvider>(context);
     final team = provider.currentTeam;
     final player = provider.currentDescriber;
-    final teamColor = team?.color ?? const Color(0xFF00A8FF);
+    final teamColor = team?.color ?? const Color(0xFF007AFF);
 
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: const Color(0xFF121820),
+        backgroundColor: const Color(0xFF121212),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -28,9 +28,9 @@ class TurnTransitionScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A222D),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFF2C394B)),
+                    color: const Color(0xFF1E1E1E),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF333333)),
                   ),
                   child: Text(
                     'TUR ${provider.currentRound} / ${provider.settings.numberOfRounds}',
@@ -46,16 +46,16 @@ class TurnTransitionScreen extends StatelessWidget {
                 // Center Info Card
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(28),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A222D),
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: teamColor.withOpacity(0.6), width: 2),
+                    color: const Color(0xFF1E1E1E),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: teamColor, width: 2.5),
                     boxShadow: [
                       BoxShadow(
-                        color: teamColor.withOpacity(0.18),
-                        blurRadius: 30,
-                        spreadRadius: 4,
+                        color: teamColor.withOpacity(0.2),
+                        blurRadius: 20,
+                        spreadRadius: 2,
                       ),
                     ],
                   ),
@@ -65,7 +65,8 @@ class TurnTransitionScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                         decoration: BoxDecoration(
                           color: teamColor.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: teamColor),
                         ),
                         child: Text(
                           team?.name ?? 'Takım',
@@ -79,9 +80,9 @@ class TurnTransitionScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                       CircleAvatar(
-                        radius: 48,
+                        radius: 44,
                         backgroundColor: teamColor.withOpacity(0.2),
-                        child: Icon(Icons.record_voice_over, color: teamColor, size: 48),
+                        child: Icon(Icons.record_voice_over, color: teamColor, size: 44),
                       ),
                       const SizedBox(height: 18),
                       const Text(
@@ -97,8 +98,8 @@ class TurnTransitionScreen extends StatelessWidget {
                       Text(
                         player?.name ?? 'Oyuncu',
                         style: const TextStyle(
-                          color: Color(0xFFF8FAFC),
-                          fontSize: 32,
+                          color: Colors.white,
+                          fontSize: 30,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
@@ -106,18 +107,18 @@ class TurnTransitionScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF121820),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: const Color(0xFF2C394B)),
+                          color: const Color(0xFF121212),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFF333333)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.phone_android, color: Color(0xFF00A8FF), size: 18),
+                            const Icon(Icons.phone_android, color: Colors.white, size: 18),
                             const SizedBox(width: 8),
                             Text(
                               'Cihazı ${player?.name ?? "oyuncuya"} verin',
-                              style: const TextStyle(color: Color(0xFFE2E8F0), fontSize: 13),
+                              style: const TextStyle(color: Colors.white, fontSize: 13),
                             ),
                           ],
                         ),
@@ -129,7 +130,7 @@ class TurnTransitionScreen extends StatelessWidget {
                 // Start Turn Button
                 SizedBox(
                   width: double.infinity,
-                  height: 60,
+                  height: 56,
                   child: ElevatedButton(
                     onPressed: () {
                       SoundService().playClick();
@@ -140,21 +141,21 @@ class TurnTransitionScreen extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: teamColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                      elevation: 6,
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 4,
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.play_arrow, size: 28, color: Colors.white),
+                        Icon(Icons.play_arrow, size: 28, color: Colors.black),
                         SizedBox(width: 8),
                         Text(
                           'SÜREYİ BAŞLAT',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
+                            color: Colors.black,
+                            fontSize: 17,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 1.5,
                           ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/game_provider.dart';
@@ -17,11 +18,53 @@ class GameOverScreen extends StatefulWidget {
 }
 
 class _GameOverScreenState extends State<GameOverScreen> {
+  // Stages:
+  // 0: "OYUN BİTTİ!" suspense (drumroll sound)
+  // 1: Winning Team reveal (fanfare sound)
+  // 2: MVP reveal with Crown 👑 (fanfare/applause)
+  // 3: Full statistics matrix & Rematch
+  int _currentStage = 0;
+  Timer? _stageTimer;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      SoundService().playFanfare();
+    _startStageSequence();
+  }
+
+  void _startStageSequence() {
+    // Stage 0: Drumroll / Suspense
+    SoundService().playTimeUp();
+
+    _stageTimer = Timer(const Duration(milliseconds: 2500), () {
+      if (mounted) {
+        setState(() {
+          _currentStage = 1;
+        });
+        SoundService().playFanfare();
+
+        _stageTimer = Timer(const Duration(milliseconds: 2500), () {
+          if (mounted) {
+            setState(() {
+              _currentStage = 2;
+            });
+            SoundService().playFanfare();
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _stageTimer?.cancel();
+    super.dispose();
+  }
+
+  void _advanceToStats() {
+    SoundService().playClick();
+    setState(() {
+      _currentStage = 3;
     });
   }
 
@@ -30,14 +73,14 @@ class _GameOverScreenState extends State<GameOverScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1A222D),
+        backgroundColor: const Color(0xFF1E1E1E),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: Color(0xFF2C394B), width: 1.5),
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFF333333), width: 2),
         ),
         title: const Row(
           children: [
-            Icon(Icons.replay, color: Color(0xFF00A8FF)),
+            Icon(Icons.replay, color: Colors.white),
             SizedBox(width: 10),
             Text('Rövanş Maçı', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ],
@@ -72,11 +115,11 @@ class _GameOverScreenState extends State<GameOverScreen> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00A8FF),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Aynı Kurallarla Başla', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('Aynı Kurallarla Başla', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -88,131 +131,103 @@ class _GameOverScreenState extends State<GameOverScreen> {
     final provider = Provider.of<GameProvider>(context, listen: false);
     final stats = provider.calculateGameStats();
     final winner = stats.winningTeam;
+    final mvp = stats.mvpPlayer;
 
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: const Color(0xFF121820),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF1A222D),
-          elevation: 0,
-          title: const Text(
-            'HUSH! • OYUN SONU & İSTATİSTİKLER',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1),
-          ),
-          centerTitle: true,
-          automaticallyImplyLeading: false,
-        ),
+        backgroundColor: const Color(0xFF121212),
         body: SafeArea(
+          child: _buildStageContent(context, provider, stats, winner, mvp),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStageContent(
+    BuildContext context,
+    GameProvider provider,
+    GameStats stats,
+    Team winner,
+    Player? mvp,
+  ) {
+    // Stage 0: OYUN BİTTİ! suspense
+    if (_currentStage == 0) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.stars, size: 80, color: Color(0xFFFFC048)),
+            const SizedBox(height: 20),
+            const Text(
+              'OYUN BİTTİ!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 44,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 4,
+                fontFamily: 'Courier',
+              ),
+            ),
+            const SizedBox(height: 16),
+            const CircularProgressIndicator(color: Colors.white),
+            const SizedBox(height: 16),
+            const Text(
+              'Sonuçlar Hesaplanıyor...',
+              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 16),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Stage 1: Champion Team Reveal
+    if (_currentStage == 1) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    // Winner Team Banner
-                    _buildWinnerCard(winner),
-
-                    const SizedBox(height: 20),
-
-                    // MVP & Worst Describer Row
-                    Row(
-                      children: [
-                        if (stats.mvpPlayer != null)
-                          Expanded(
-                            child: _buildAwardCard(
-                              title: 'GÜNÜN YILDIZI',
-                              subtitle: 'En İyi Anlatıcı',
-                              player: stats.mvpPlayer!,
-                              color: const Color(0xFFFFC048),
-                              icon: Icons.emoji_events,
-                            ),
-                          ),
-                        const SizedBox(width: 12),
-                        if (stats.worstPlayer != null)
-                          Expanded(
-                            child: _buildAwardCard(
-                              title: 'GÜNÜN TALİHSİZİ',
-                              subtitle: 'En Düşük Puan',
-                              player: stats.worstPlayer!,
-                              color: const Color(0xFFFF4D4D),
-                              icon: Icons.sentiment_very_dissatisfied,
-                            ),
-                          ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Teams Leaderboard Table
-                    _buildSectionTitle('🏆 TAKIM SIRALAMASI'),
-                    const SizedBox(height: 10),
-                    _buildTeamsTable(stats.rankedTeams),
-
-                    const SizedBox(height: 24),
-
-                    // Detailed Players Stats Table
-                    _buildSectionTitle('📊 TÜM OYUNCULARIN PERFORMANSI'),
-                    const SizedBox(height: 10),
-                    _buildPlayersTable(stats.allPlayersRanked, provider.teams),
-                  ],
+              const Text('🎉 🎊 🎈', style: TextStyle(fontSize: 40)),
+              const SizedBox(height: 16),
+              const Text(
+                'ŞAMPİYON TAKIM',
+                style: TextStyle(
+                  color: Color(0xFFFFC048),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 3,
                 ),
               ),
-
-              // Bottom Buttons Dock (Ana Menü & Rövanş)
+              const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1A222D),
-                  border: Border(top: BorderSide(color: Color(0xFF2C394B))),
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E1E1E),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: winner.color, width: 3.5),
+                  boxShadow: [
+                    BoxShadow(color: winner.color.withOpacity(0.3), blurRadius: 20, spreadRadius: 2),
+                  ],
                 ),
-                child: Row(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          SoundService().playClick();
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-                            (route) => false,
-                          );
-                        },
-                        icon: const Icon(Icons.home, color: Color(0xFF94A3B8)),
-                        label: const Text(
-                          'ANA MENÜ',
-                          style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.bold),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: const BorderSide(color: Color(0xFF2C394B)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
+                    Text(
+                      winner.name,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: winner.color,
+                        fontSize: 34,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _showRematchDialog(context, provider),
-                        icon: const Icon(Icons.replay, color: Colors.white),
-                        label: const Text(
-                          'RÖVANŞ OYNA',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00A8FF),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          elevation: 4,
-                        ),
-                      ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Toplam Puan: ${winner.totalScore}',
+                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -220,7 +235,171 @@ class _GameOverScreenState extends State<GameOverScreen> {
             ],
           ),
         ),
-      ),
+      );
+    }
+
+    // Stage 2: MVP Reveal (Crown over name)
+    if (_currentStage == 2) {
+      return GestureDetector(
+        onTap: _advanceToStats,
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('🎉 🏆 🎈', style: TextStyle(fontSize: 40)),
+                const SizedBox(height: 16),
+                const Text(
+                  'EN İYİ OYUNCU (MVP)',
+                  style: TextStyle(
+                    color: Color(0xFFFFC048),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 3,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                if (mvp != null) ...[
+                  // Crown symbol above name
+                  const Text('👑', style: TextStyle(fontSize: 54)),
+                  const SizedBox(height: 4),
+                  Text(
+                    mvp.name.toUpperCase(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 38,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Net Puan: +${mvp.netPoints} • Doğruluk: %${mvp.accuracyRate.toStringAsFixed(0)}',
+                    style: const TextStyle(color: Color(0xFFFFC048), fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+                const SizedBox(height: 40),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E1E1E),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white38),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'İstatistikleri Görmek İçin Tıklayın',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.touch_app, color: Colors.white, size: 20),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Stage 3: Full Stats & Matrix Table
+    return Column(
+      children: [
+        AppBar(
+          backgroundColor: const Color(0xFF1E1E1E),
+          elevation: 0,
+          title: const Text(
+            'HUSH! • OYUN SONU & İSTATİSTİKLER',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: 1),
+          ),
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+        ),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              _buildWinnerCard(winner),
+              const SizedBox(height: 16),
+              if (mvp != null) ...[
+                _buildMvpCrownCard(mvp),
+                const SizedBox(height: 20),
+              ],
+              _buildSectionTitle('🏆 TAKIM SIRALAMASI'),
+              const SizedBox(height: 10),
+              _buildTeamsTable(stats.rankedTeams),
+              const SizedBox(height: 24),
+              _buildSectionTitle('📊 TÜM OYUNCULARIN PERFORMANSI'),
+              const SizedBox(height: 10),
+              _buildPlayersTable(stats.allPlayersRanked, provider.teams),
+            ],
+          ),
+        ),
+        // Bottom Buttons Dock
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(
+            color: Color(0xFF1E1E1E),
+            border: Border(top: BorderSide(color: Color(0xFF333333))),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    SoundService().playClick();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                      (route) => false,
+                    );
+                  },
+                  icon: const Icon(Icons.home, color: Colors.white),
+                  label: const Text(
+                    'ANA MENÜ',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: const BorderSide(color: Colors.white),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton.icon(
+                  onPressed: () => _showRematchDialog(context, provider),
+                  icon: const Icon(Icons.replay, color: Colors.black),
+                  label: const Text(
+                    'RÖVANŞ OYNA',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -228,8 +407,8 @@ class _GameOverScreenState extends State<GameOverScreen> {
     return Text(
       title,
       style: const TextStyle(
-        color: Color(0xFFF8FAFC),
-        fontSize: 15,
+        color: Colors.white,
+        fontSize: 14,
         fontWeight: FontWeight.w900,
         letterSpacing: 1,
       ),
@@ -241,28 +420,27 @@ class _GameOverScreenState extends State<GameOverScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A222D),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFFFC048), width: 2),
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFFC048), width: 2.5),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFFFFC048).withOpacity(0.2),
-            blurRadius: 24,
-            spreadRadius: 2,
+            blurRadius: 16,
           ),
         ],
       ),
       child: Column(
         children: [
-          const Icon(Icons.military_tech, color: Color(0xFFFFC048), size: 48),
-          const SizedBox(height: 8),
+          const Icon(Icons.emoji_events, color: Color(0xFFFFC048), size: 44),
+          const SizedBox(height: 6),
           const Text(
-            'ŞAMPİYON',
+            'ŞAMPİYON TAKIM',
             style: TextStyle(
               color: Color(0xFFFFC048),
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w900,
-              letterSpacing: 3,
+              letterSpacing: 2,
             ),
           ),
           const SizedBox(height: 4),
@@ -270,57 +448,50 @@ class _GameOverScreenState extends State<GameOverScreen> {
             winner.name,
             style: TextStyle(
               color: winner.color,
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             'Toplam Puan: ${winner.totalScore}',
-            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAwardCard({
-    required String title,
-    required String subtitle,
-    required Player player,
-    required Color color,
-    required IconData icon,
-  }) {
+  Widget _buildMvpCrownCard(Player player) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A222D),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withOpacity(0.6), width: 1.5),
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFFC048), width: 1.5),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Icon(icon, color: color, size: 28),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1),
+          const Text('👑', style: TextStyle(fontSize: 32)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'GÜNÜN YILDIZI (MVP)',
+                  style: TextStyle(color: Color(0xFFFFC048), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1),
+                ),
+                Text(
+                  player.name,
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900),
+                ),
+              ],
+            ),
           ),
           Text(
-            subtitle,
-            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            player.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Net: ${player.netPoints >= 0 ? "+${player.netPoints}" : player.netPoints} Puan',
-            style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold),
+            'Net: +${player.netPoints}',
+            style: const TextStyle(color: Color(0xFFFFC048), fontSize: 15, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -330,9 +501,9 @@ class _GameOverScreenState extends State<GameOverScreen> {
   Widget _buildTeamsTable(List<Team> teams) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1A222D),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFF2C394B)),
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF333333)),
       ),
       child: Column(
         children: teams.asMap().entries.map((entry) {
@@ -344,7 +515,7 @@ class _GameOverScreenState extends State<GameOverScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               border: rank != teams.length
-                  ? const Border(bottom: BorderSide(color: Color(0xFF2C394B)))
+                  ? const Border(bottom: BorderSide(color: Color(0xFF333333)))
                   : null,
             ),
             child: Row(
@@ -370,7 +541,7 @@ class _GameOverScreenState extends State<GameOverScreen> {
                   '${team.totalScore} Puan',
                   style: TextStyle(
                     color: team.color,
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -383,70 +554,105 @@ class _GameOverScreenState extends State<GameOverScreen> {
   }
 
   Widget _buildPlayersTable(List<Player> players, List<Team> teams) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A222D),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFF2C394B)),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          headingTextStyle: const TextStyle(
-            color: Color(0xFF94A3B8),
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-          dataTextStyle: const TextStyle(
-            color: Color(0xFFF8FAFC),
-            fontSize: 13,
-          ),
-          columns: const [
-            DataColumn(label: Text('OYUNCU')),
-            DataColumn(label: Text('TAKIM')),
-            DataColumn(label: Text('DOĞRU')),
-            DataColumn(label: Text('HUSH!')),
-            DataColumn(label: Text('PAS')),
-            DataColumn(label: Text('İSABET %')),
-            DataColumn(label: Text('NET PUAN')),
-          ],
-          rows: players.map((player) {
-            final team = teams.firstWhere(
-              (t) => t.id == player.teamId,
-              orElse: () => teams.first,
-            );
+    return Column(
+      children: players.map((player) {
+        final team = teams.firstWhere(
+          (t) => t.id == player.teamId,
+          orElse: () => teams.first,
+        );
 
-            return DataRow(
-              cells: [
-                DataCell(Text(player.name, style: const TextStyle(fontWeight: FontWeight.bold))),
-                DataCell(
+        final netColor = player.netPoints >= 0 ? const Color(0xFF007AFF) : const Color(0xFFFF3B30);
+        final netSign = player.netPoints >= 0 ? '+${player.netPoints}' : '${player.netPoints}';
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: team.color.withOpacity(0.5), width: 1.5),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header: Player Name & Team Badge
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                   Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircleAvatar(backgroundColor: team.color, radius: 5),
-                      const SizedBox(width: 6),
-                      Text(team.name, style: TextStyle(color: team.color, fontSize: 12)),
+                      const Icon(Icons.person, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        player.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                DataCell(Text('+${player.correctCount}', style: const TextStyle(color: Color(0xFF00A8FF)))),
-                DataCell(Text('-${player.hushCount}', style: const TextStyle(color: Color(0xFFFF4D4D)))),
-                DataCell(Text('${player.passCount}', style: const TextStyle(color: Color(0xFFFF793F)))),
-                DataCell(Text('%${player.accuracyRate.toStringAsFixed(0)}', style: const TextStyle(color: Color(0xFFFFC048)))),
-                DataCell(
-                  Text(
-                    player.netPoints >= 0 ? '+${player.netPoints}' : '${player.netPoints}',
-                    style: TextStyle(
-                      color: player.netPoints >= 0 ? const Color(0xFF00A8FF) : const Color(0xFFFF4D4D),
-                      fontWeight: FontWeight.w900,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: team.color.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: team.color),
+                    ),
+                    child: Text(
+                      team.name,
+                      style: TextStyle(
+                        color: team.color,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            );
-          }).toList(),
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Divider(color: Color(0xFF333333), height: 1),
+              const SizedBox(height: 12),
+              // Detailed Stats Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildStatBadge('DOĞRU', '+${player.correctCount}', const Color(0xFF007AFF)),
+                  _buildStatBadge('HUSH!', '-${player.hushCount}', const Color(0xFFFF3B30)),
+                  _buildStatBadge('PAS', '${player.passCount}', const Color(0xFFFF793F)),
+                  _buildStatBadge('İSABET', '%${player.accuracyRate.toStringAsFixed(0)}', const Color(0xFFFFC048)),
+                  _buildStatBadge('NET PUAN', netSign, netColor, isBold: true),
+                ],
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildStatBadge(String label, String value, Color color, {bool isBold = false}) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            color: color,
+            fontSize: isBold ? 17 : 15,
+            fontWeight: FontWeight.w900,
+          ),
         ),
-      ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF94A3B8),
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }

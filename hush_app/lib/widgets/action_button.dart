@@ -27,22 +27,22 @@ class ActionGameButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: isEnabled ? onPressed : null,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           splashColor: effectiveColor.withOpacity(0.3),
           child: Ink(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
-              color: effectiveColor.withOpacity(0.18),
-              borderRadius: BorderRadius.circular(16),
+              color: isEnabled ? effectiveColor : const Color(0xFF1E1E1E),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: effectiveColor.withOpacity(isEnabled ? 0.7 : 0.3),
+                color: isEnabled ? Colors.white : const Color(0xFF333333),
                 width: 2,
               ),
               boxShadow: isEnabled
                   ? [
                       BoxShadow(
-                        color: effectiveColor.withOpacity(0.2),
-                        blurRadius: 12,
+                        color: effectiveColor.withOpacity(0.3),
+                        blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
                     ]
@@ -51,14 +51,14 @@ class ActionGameButton extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, color: effectiveColor, size: 28),
-                const SizedBox(height: 6),
+                Icon(icon, color: Colors.white, size: 26),
+                const SizedBox(height: 4),
                 Text(
                   title,
                   style: TextStyle(
-                    color: isEnabled ? const Color(0xFFF8FAFC) : const Color(0xFF94A3B8),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
+                    color: isEnabled ? Colors.white : const Color(0xFF94A3B8),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -66,8 +66,8 @@ class ActionGameButton extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle!,
-                    style: TextStyle(
-                      color: effectiveColor,
+                    style: const TextStyle(
+                      color: Colors.white70,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
