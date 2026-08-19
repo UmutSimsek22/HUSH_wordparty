@@ -1,0 +1,30 @@
+# AG-Kit files to ignore
+.agents/
+.github/
+cli/
+dist/
+web/
+Dockerfile
+AGENT_FLOW.md
+CHANGELOG.md
+CLAUDE.md
+MIGRATION.md
+SECURITY.md
+package.json
+package-lock.json
+.vs/
+.temp_ag_kit/
+.ag-kit-backups/
+node_modules/
+
+# Local OS & Editor files
+.DS_Store
+*.suo
+*.ntvsca
+*.njsproj
+*.sln
+*.sw?
+Thumbs.db
+
+# Keep only the Flutter app and documentation
+# hush_app/ is allowed and contains its own .gitignore for build artifacts.
