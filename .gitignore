@@ -1,6 +1,7 @@
 # AG-Kit files to ignore
 .agents/
-.github/
+.github/*
+!.github/workflows/
 cli/
 dist/
 web/
