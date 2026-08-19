@@ -165,7 +165,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
                       subtitle: '-1 Ceza',
                       icon: Icons.close,
                       color: const Color(0xFFFF4D4D),
-                      onPressed: provider.onTaboo,
+                      onPressed: provider.onHush,
                     ),
                     const SizedBox(width: 8),
 

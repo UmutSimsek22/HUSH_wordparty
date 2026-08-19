@@ -4,7 +4,7 @@ class Player {
   final String teamId;
 
   int correctCount;
-  int tabooCount;
+  int hushCount;
   int passCount;
 
   Player({
@@ -12,13 +12,13 @@ class Player {
     required this.name,
     required this.teamId,
     this.correctCount = 0,
-    this.tabooCount = 0,
+    this.hushCount = 0,
     this.passCount = 0,
   });
 
-  int get netPoints => correctCount - tabooCount;
+  int get netPoints => correctCount - hushCount;
 
-  int get totalAttempts => correctCount + tabooCount + passCount;
+  int get totalAttempts => correctCount + hushCount + passCount;
 
   double get accuracyRate {
     if (totalAttempts == 0) return 0.0;
@@ -27,7 +27,7 @@ class Player {
 
   void resetScore() {
     correctCount = 0;
-    tabooCount = 0;
+    hushCount = 0;
     passCount = 0;
   }
 }

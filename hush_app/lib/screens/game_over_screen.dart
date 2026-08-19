@@ -430,7 +430,7 @@ class _GameOverScreenState extends State<GameOverScreen> {
                   ),
                 ),
                 DataCell(Text('+${player.correctCount}', style: const TextStyle(color: Color(0xFF00A8FF)))),
-                DataCell(Text('-${player.tabooCount}', style: const TextStyle(color: Color(0xFFFF4D4D)))),
+                DataCell(Text('-${player.hushCount}', style: const TextStyle(color: Color(0xFFFF4D4D)))),
                 DataCell(Text('${player.passCount}', style: const TextStyle(color: Color(0xFFFF793F)))),
                 DataCell(Text('%${player.accuracyRate.toStringAsFixed(0)}', style: const TextStyle(color: Color(0xFFFFC048)))),
                 DataCell(

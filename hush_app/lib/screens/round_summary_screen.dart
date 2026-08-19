@@ -87,7 +87,7 @@ class RoundSummaryScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           _buildStatItem('Doğru', '+${provider.turnCorrect}', const Color(0xFF00A8FF), Icons.check_circle),
-                          _buildStatItem('HUSH!', '-${provider.turnTaboo}', const Color(0xFFFF4D4D), Icons.cancel),
+                          _buildStatItem('HUSH!', '-${provider.turnHush}', const Color(0xFFFF4D4D), Icons.cancel),
                           _buildStatItem('Pas', '${provider.turnPass}', const Color(0xFFFF793F), Icons.skip_next),
                         ],
                       ),

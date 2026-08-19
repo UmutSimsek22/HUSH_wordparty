@@ -30,7 +30,7 @@ class GameProvider extends ChangeNotifier {
 
   // Turn statistics
   int _turnCorrect = 0;
-  int _turnTaboo = 0;
+  int _turnHush = 0;
   int _turnPass = 0;
 
   // Getters
@@ -44,9 +44,9 @@ class GameProvider extends ChangeNotifier {
   bool get isTurnActive => _isTurnActive;
   bool get isGameFinished => _isGameFinished;
   int get turnCorrect => _turnCorrect;
-  int get turnTaboo => _turnTaboo;
+  int get turnHush => _turnHush;
   int get turnPass => _turnPass;
-  int get turnNetPoints => _turnCorrect - _turnTaboo;
+  int get turnNetPoints => _turnCorrect - _turnHush;
 
   Team? get currentTeam {
     if (_teams.isEmpty || _currentTeamIndex >= _teams.length) return null;
@@ -137,7 +137,7 @@ class GameProvider extends ChangeNotifier {
     _remainingSeconds = _settings.timePerTurnSeconds;
     _remainingPasses = _settings.passLimit ?? 999;
     _turnCorrect = 0;
-    _turnTaboo = 0;
+    _turnHush = 0;
     _turnPass = 0;
     _isTurnActive = true;
 
@@ -170,12 +170,12 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void onTaboo() {
+  void onHush() {
     if (!_isTurnActive) return;
-    _turnTaboo++;
+    _turnHush++;
     final player = currentDescriber;
     if (player != null) {
-      player.tabooCount++;
+      player.hushCount++;
     }
     _soundService.playHush();
     _drawNextCard();

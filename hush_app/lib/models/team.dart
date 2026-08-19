@@ -22,8 +22,8 @@ class Team {
     return players.fold(0, (sum, player) => sum + player.correctCount);
   }
 
-  int get totalTaboo {
-    return players.fold(0, (sum, player) => sum + player.tabooCount);
+  int get totalHush {
+    return players.fold(0, (sum, player) => sum + player.hushCount);
   }
 
   int get totalPass {
