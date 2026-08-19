@@ -2,7 +2,7 @@ name: 🚀 Build HUSH! Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, hush_update ]
   workflow_dispatch:
 
 permissions:
